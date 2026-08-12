@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>frip. — vends et achète en friperie</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; background: #EDE7DA; }
+  * { box-sizing: border-box; }
+  @keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+  .animate-spin { animation: spin 1s linear infinite; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useMemo, useEffect } = React;
+
+function Icon({ size = 24, color = "currentColor", fill = "none", strokeWidth = 2, className, style, children }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+      {children}
+    </svg>
+  );
+}
+const Search = (p) => <Icon {...p}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Icon>;
+const Heart = (p) => <Icon {...p}><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></Icon>;
+const Plus = (p) => <Icon {...p}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></Icon>;
+const Home = (p) => <Icon {...p}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></Icon>;
+const MessageCircle = (p) => <Icon {...p}><path d="M21 11.5a8.38 8.38 0 0 1-4.7 7.6 8.5 8.5 0 0 1-8.4-.2L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></Icon>;
+const User = (p) => <Icon {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></Icon>;
+const SlidersHorizontal = (p) => <Icon {...p}><line x1="4" y1="6" x2="20" y2="6" /><circle cx="9" cy="6" r="1.6" /><line x1="4" y1="12" x2="20" y2="12" /><circle cx="16" cy="12" r="1.6" /><line x1="4" y1="18" x2="20" y2="18" /><circle cx="10" cy="18" r="1.6" /></Icon>;
+const Camera = (p) => <Icon {...p}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></Icon>;
+const X = (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></Icon>;
+const ChevronLeft = (p) => <Icon {...p}><polyline points="15 18 9 12 15 6" /></Icon>;
+const Sparkles = (p) => <Icon {...p}><path d="M12 3l1.6 4.9L18 9.5l-4.4 1.6L12 16l-1.6-4.9L6 9.5l4.4-1.6z" /><path d="M19 3v3M19 4.5H17.5M5 17v3M5 18.5H3.5" /></Icon>;
+const TrendingUp = (p) => <Icon {...p}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></Icon>;
+const Star = (p) => <Icon {...p}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26" /></Icon>;
+const CreditCard = (p) => <Icon {...p}><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></Icon>;
+const Truck = (p) => <Icon {...p}><rect x="1" y="3" width="15" height="13" /><path d="M16 8h4l3 3v5h-7V8z" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></Icon>;
+const Send = (p) => <Icon {...p}><polygon points="22 2 15 22 11 13 2 9 22 2" /></Icon>;
+const Check = (p) => <Icon {...p}><polyline points="20 6 9 17 4 12" /></Icon>;
+const ShieldCheck = (p) => <Icon {...p}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></Icon>;
+const Bell = (p) => <Icon {...p}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></Icon>;
+const PackageCheck = (p) => <Icon {...p}><path d="M21 8v8a2 2 0 0 1-1 1.7l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16V8a2 2 0 0 1 1-1.7l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8z" /><polyline points="8.5 11.5 11 14 16 9" /></Icon>;
+const Tag = (p) => <Icon {...p}><path d="M20.59 13.41L13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></Icon>;
+const ImageIcon = (p) => <Icon {...p}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></Icon>;
+const Loader2 = (p) => <Icon {...p}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></Icon>;
+const ScanSearch = (p) => <Icon {...p}><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" /><circle cx="12" cy="12" r="3.5" /><line x1="15" y1="15" x2="17.5" y2="17.5" /></Icon>;
+
+
+const TOKENS = {
+  paper: "#FAF7F1",
+  card: "#FFFFFF",
+  ink: "#1C1B29",
+  inkSoft: "#4A4759",
+  muted: "#928C7C",
+  border: "#E7E1D2",
+  accent: "#FF4433",
+  accentSoft: "#FFE4DE",
+  sage: "#6B7A4F",
+  sageSoft: "#E7EBDD",
+};
+
+const LOGO_URI = "data:image/png;base64,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";
+
+const CATEGORIES = ["Tout", "Femme", "Homme", "Enfant", "Chaussures", "Accessoires", "Maison"];
+const SIZES = ["XS", "S", "M", "L", "XL", "Unique"];
+const STATES = ["Neuf avec étiquette", "Comme neuf", "Très bon état", "Bon état"];
+
+const PRODUCTS = [
+  { id: 1, title: "Veste en jean délavé", brand: "Levi's", size: "M", price: 28, cat: "Femme", state: "Très bon état", color: "#C9A876", likes: 12, seller: "Camille", sellerColor: "#D6B7C4", rating: 4.8, sales: 34,
+    desc: "Veste en jean coupe droite, légèrement délavée sur les coutures. Portée une dizaine de fois, aucun accroc ni tache. Idéale à superposer en mi-saison." },
+  { id: 2, title: "Baskets basses cuir", brand: "Adidas", size: "42", price: 45, cat: "Chaussures", state: "Comme neuf", color: "#DDD6C8", likes: 34, seller: "Nathan", sellerColor: "#A9857A", rating: 4.9, sales: 61,
+    desc: "Portées deux fois seulement, boîte d'origine incluse. Semelle intacte, cuir souple. Vendues faute de la bonne pointure." },
+  { id: 3, title: "Pull col rond laine", brand: "Uniqlo", size: "S", price: 18, cat: "Femme", state: "Bon état", color: "#B7C2A6", likes: 7, seller: "Camille", sellerColor: "#D6B7C4", rating: 4.8, sales: 34,
+    desc: "Pull en laine mélangée, doux et chaud. Léger bouloché sous les bras, invisible une fois porté. Lavage à la main conseillé." },
+  { id: 4, title: "Chemise à carreaux", brand: "Zara", size: "L", price: 15, cat: "Homme", state: "Bon état", color: "#A9857A", likes: 5, seller: "Yanis", sellerColor: "#7A6656", rating: 4.6, sales: 12,
+    desc: "Chemise en flanelle épaisse, parfaite pour l'automne. Un bouton changé au poignet gauche, discret et solide." },
+  { id: 5, title: "Sac bandoulière cuir", brand: "Fossil", size: "Unique", price: 39, cat: "Accessoires", state: "Très bon état", color: "#7A6656", likes: 21, seller: "Nathan", sellerColor: "#A9857A", rating: 4.9, sales: 61,
+    desc: "Sac en cuir grainé, bandoulière ajustable, un compartiment zippé et deux poches intérieures. Patine naturelle du cuir sur les coins." },
+  { id: 6, title: "Robe fleurie été", brand: "Sézane", size: "36", price: 32, cat: "Femme", state: "Comme neuf", color: "#D6B7C4", likes: 19, seller: "Camille", sellerColor: "#D6B7C4", rating: 4.8, sales: 34,
+    desc: "Robe légère en viscose, motif fleuri, dos noué. Portée une seule fois pour un mariage. Aucun défaut." },
+  { id: 7, title: "Manteau laine long", brand: "Massimo Dutti", size: "40", price: 55, cat: "Femme", state: "Très bon état", color: "#5B5348", likes: 28, seller: "Léa", sellerColor: "#6B7A4F", rating: 4.7, sales: 8,
+    desc: "Manteau long en laine mélangée, coupe cintrée, doublure satinée. Quelques bouloches légères, rien de visible porté." },
+  { id: 8, title: "Vase céramique", brand: "Maison Sarah Lavoine", size: "Unique", price: 22, cat: "Maison", state: "Bon état", color: "#C4B8A5", likes: 9, seller: "Léa", sellerColor: "#6B7A4F", rating: 4.7, sales: 8,
+    desc: "Vase en céramique émaillée, fait main, petite irrégularité de cuisson sur la base (voir photo), invisible une fois posé." },
+];
+
+const TIPS = {
+  Femme: "Les annonces avec 3 photos min. se vendent 2x plus vite.",
+  Homme: "Précise la coupe (slim, regular) : ça rassure l'acheteur.",
+  Enfant: "Indique l'âge conseillé en plus de la taille.",
+  Chaussures: "Une photo de la semelle rassure sur l'usure.",
+  Accessoires: "Montre les détails (fermoir, doublure) de près.",
+  Maison: "Précise les dimensions exactes dans le titre.",
+};
+
+const CONVERSATIONS = [
+  { id: 1, name: "Camille", color: "#D6B7C4", productId: 6, last: "C'est toujours disponible ?", time: "10:42", unread: true,
+    messages: [
+      { from: "them", text: "Bonjour ! La robe fleurie est toujours dispo ?" },
+      { from: "me", text: "Oui, toujours en ligne 🙂" },
+      { from: "them", text: "C'est toujours disponible ?" },
+    ] },
+  { id: 2, name: "Nathan", color: "#A9857A", productId: 2, last: "Merci, colis envoyé aujourd'hui !", time: "Hier", unread: false,
+    messages: [
+      { from: "me", text: "Bonjour, je viens de payer les baskets." },
+      { from: "them", text: "Merci, colis envoyé aujourd'hui !" },
+    ] },
+  { id: 3, name: "Léa", color: "#6B7A4F", productId: 7, last: "Vous acceptez 48€ ?", time: "Lun", unread: true,
+    messages: [
+      { from: "them", text: "Bonjour, le manteau vous intéresse toujours ?" },
+      { from: "them", text: "Vous acceptez 48€ ?" },
+    ] },
+];
+
+const PROFILE = {
+  name: "Alex Moreau",
+  color: "#FF4433",
+  rating: 4.8,
+  sales: 27,
+  bio: "Je vide ma penderie au fil des saisons : pièces de seconde main en bon état, envoi soigné sous 48h. Réponse rapide aux messages, n'hésitez pas à demander des photos supplémentaires.",
+};
+
+const REVIEWS = [
+  { id: 1, name: "Nathan", color: "#A9857A", rating: 5, date: "Il y a 3 jours", product: "Baskets basses cuir",
+    text: "Envoi rapide et très bien emballé. L'article était exactement comme décrit, aucune mauvaise surprise. Je recommande !" },
+  { id: 2, name: "Léa", color: "#6B7A4F", rating: 5, date: "Il y a 1 semaine", product: "Manteau laine long",
+    text: "Vendeuse très arrangeante, a accepté de baisser le prix et a répondu à toutes mes questions avant l'achat." },
+  { id: 3, name: "Yanis", color: "#7A6656", rating: 4, date: "Il y a 2 semaines", product: "Chemise à carreaux",
+    text: "Bon état général, un peu plus froissée que sur les photos mais rien de grave après un coup de fer." },
+];
+
+const NOTIFICATIONS_INITIAL = [
+  { id: 1, type: "message", text: "Camille vous a envoyé un message", detail: "« C'est toujours disponible ? »", time: "10:42", read: false },
+  { id: 2, type: "sale", text: "Vente confirmée avec Nathan", detail: "Baskets basses cuir — 45€", time: "Hier", read: false },
+  { id: 3, type: "review", text: "Nathan vous a laissé un avis", detail: "★★★★★ — « Envoi rapide et très bien emballé »", time: "Il y a 3 jours", read: false },
+  { id: 4, type: "like", text: "3 personnes ont aimé votre annonce", detail: "Robe fleurie été", time: "Il y a 4 jours", read: true },
+  { id: 5, type: "price", text: "Léa propose 48€ pour le manteau", detail: "Prix demandé : 55€", time: "Lun", read: true },
+];
+
+const NOTIF_ICONS = { message: MessageCircle, sale: PackageCheck, review: Star, like: Heart, price: Tag };
+
+const VISUAL_MATCHES = [2, 5, 7];
+
+function PriceTag({ price }) {
+  return (
+    <div
+      style={{ transform: "rotate(-4deg)", background: TOKENS.ink, color: TOKENS.paper }}
+      className="absolute -left-2 -top-2 z-10 rounded-sm px-2 py-1 shadow-md flex items-center gap-1"
+    >
+      <span style={{ width: 6, height: 6, borderRadius: "9999px", background: TOKENS.paper, boxShadow: `0 0 0 1px ${TOKENS.ink}` }} />
+      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700 }}>{price}€</span>
+    </div>
+  );
+}
+
+function ProductCard({ p, isFav, onToggleFav, onOpen }) {
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden cursor-pointer"
+      style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}
+      onClick={() => onOpen(p.id)}
+    >
+      <PriceTag price={p.price} />
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleFav(p.id); }}
+        className="absolute right-2 top-2 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+        style={{ background: "rgba(255,255,255,0.9)" }}
+        aria-label="Ajouter aux favoris"
+      >
+        <Heart size={16} color={isFav ? TOKENS.accent : TOKENS.inkSoft} fill={isFav ? TOKENS.accent : "none"} />
+      </button>
+      <div style={{ background: p.color, height: 150 }} />
+      <div className="p-3">
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: TOKENS.muted, letterSpacing: 1 }}>
+          {p.brand.toUpperCase()} · T.{p.size}
+        </div>
+        <div style={{ color: TOKENS.ink, fontWeight: 600, fontSize: 14, marginTop: 2 }}>{p.title}</div>
+        <div className="inline-block mt-2 px-2 py-0.5 rounded-full" style={{ background: TOKENS.sageSoft, color: TOKENS.sage, fontSize: 10, fontWeight: 700 }}>
+          {p.state}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScreenHeader({ title, onBack }) {
+  return (
+    <div className="flex items-center gap-3 px-5 pt-9 pb-2">
+      <button onClick={onBack}>
+        <ChevronLeft size={20} color={TOKENS.ink} />
+      </button>
+      <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>{title}</div>
+    </div>
+  );
+}
+
+function FriperieApp() {
+  const [view, setView] = useState("browse");
+  const [category, setCategory] = useState("Tout");
+  const [query, setQuery] = useState("");
+  const [favs, setFavs] = useState(new Set());
+  const [selectedId, setSelectedId] = useState(null);
+  const [threadId, setThreadId] = useState(null);
+  const [profileTab, setProfileTab] = useState("annonces");
+  const [showFilters, setShowFilters] = useState(false);
+  const [maxPrice, setMaxPrice] = useState(60);
+  const [sizeFilters, setSizeFilters] = useState(new Set());
+  const [stateFilters, setStateFilters] = useState(new Set());
+
+  const [sellCat, setSellCat] = useState("Femme");
+  const [sellState, setSellState] = useState("Bon état");
+  const [sellPrice, setSellPrice] = useState("");
+  const [sellTitle, setSellTitle] = useState("");
+  const [boost, setBoost] = useState(true);
+  const [published, setPublished] = useState(false);
+
+  const [paid, setPaid] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [signupName, setSignupName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  const [promoStatus, setPromoStatus] = useState("idle"); // idle | valid | invalid
+  const applyPromo = () => {
+    const code = promoCode.trim().toUpperCase();
+    if (code === "FRIP10") setPromoStatus("valid");
+    else if (code === "") setPromoStatus("idle");
+    else setPromoStatus("invalid");
+  };
+  const [notifications, setNotifications] = useState(NOTIFICATIONS_INITIAL);
+  const unreadNotifs = notifications.filter((n) => !n.read).length;
+  const markNotifRead = (id) => setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  const markAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  const [visualStep, setVisualStep] = useState("capture");
+
+  useEffect(() => {
+    if (view === "visualSearch" && visualStep === "loading") {
+      const t = setTimeout(() => setVisualStep("results"), 1400);
+      return () => clearTimeout(t);
+    }
+  }, [view, visualStep]);
+
+  const toggleFav = (id) =>
+    setFavs((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleSetVal = (setFn, set, val) =>
+    setFn((prev) => { const n = new Set(prev); n.has(val) ? n.delete(val) : n.add(val); return n; });
+
+  const filtered = useMemo(() => {
+    return PRODUCTS.filter((p) => {
+      const matchCat = category === "Tout" || p.cat === category;
+      const matchQuery = query.trim() === "" || p.title.toLowerCase().includes(query.toLowerCase()) || p.brand.toLowerCase().includes(query.toLowerCase());
+      const matchPrice = p.price <= maxPrice;
+      const matchSize = sizeFilters.size === 0 || sizeFilters.has(p.size);
+      const matchState = stateFilters.size === 0 || stateFilters.has(p.state);
+      return matchCat && matchQuery && matchPrice && matchSize && matchState;
+    });
+  }, [category, query, maxPrice, sizeFilters, stateFilters]);
+
+  const activeFilterCount = (maxPrice < 60 ? 1 : 0) + (sizeFilters.size > 0 ? 1 : 0) + (stateFilters.size > 0 ? 1 : 0);
+
+  const selected = PRODUCTS.find((p) => p.id === selectedId);
+  const thread = CONVERSATIONS.find((c) => c.id === threadId);
+  const openProduct = (id) => { setSelectedId(id); setPaid(false); setPromoCode(""); setPromoStatus("idle"); setView("detail"); };
+
+  return (
+    <div className="w-full min-h-screen flex items-center justify-center py-8" style={{ background: "#EDE7DA", fontFamily: "'Archivo', sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;500;600;700;800&display=swap');`}</style>
+
+      <div
+        className="relative overflow-hidden"
+        style={{
+          width: 390,
+          height: 780,
+          background:
+            "linear-gradient(165deg, #FFE3B8 0%, #FFCFA0 30%, #FDB98D 55%, #F5A28C 78%, #E68F94 100%)",
+          borderRadius: 40,
+          border: "none",
+          boxShadow: "0 30px 60px rgba(0,0,0,0.25)",
+        }}
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30" style={{ width: 120, height: 22, background: TOKENS.ink, borderRadius: "0 0 16px 16px" }} />
+
+        <div className="w-full h-full overflow-y-auto pb-20" style={{ scrollbarWidth: "none" }}>
+
+          {/* ---------- CONNEXION ---------- */}
+          {view === "login" && (
+            <div className="px-5 pt-14 flex flex-col items-center">
+              <img src={LOGO_URI} alt="TNZ" style={{ height: 40, width: "auto" }} />
+              <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink, marginTop: 18 }}>Se connecter</div>
+              <p style={{ fontSize: 12, color: TOKENS.muted, marginTop: 4, textAlign: "center" }}>
+                Retrouve tes annonces, favoris et messages.
+              </p>
+
+              <div className="w-full mt-6">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>E-MAIL</label>
+                <input value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="toi@exemple.com" className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 13 }} />
+              </div>
+              <div className="w-full mt-3">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>MOT DE PASSE</label>
+                <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••" className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 13 }} />
+              </div>
+
+              <button onClick={() => setView("profile")} className="w-full mt-5 py-3.5 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 14 }}>
+                Se connecter
+              </button>
+
+              <div style={{ fontSize: 12, color: TOKENS.muted, marginTop: 16 }}>
+                Pas encore de compte ?{" "}
+                <button onClick={() => setView("signup")} style={{ color: TOKENS.accent, fontWeight: 700 }}>
+                  S'inscrire
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ---------- INSCRIPTION ---------- */}
+          {view === "signup" && (
+            <div className="px-5 pt-9">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setView("login")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+                <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>Créer un compte</div>
+              </div>
+
+              <div className="mt-5">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>NOM</label>
+                <input value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Ton nom" className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 13 }} />
+              </div>
+              <div className="mt-3">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>E-MAIL</label>
+                <input value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="toi@exemple.com" className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 13 }} />
+              </div>
+              <div className="mt-3">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>MOT DE PASSE</label>
+                <input type="password" value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="••••••••" className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 13 }} />
+              </div>
+
+              <div className="mt-3">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>CODE DE PARRAINAGE (OPTIONNEL)</label>
+                <div className="flex items-center gap-2 mt-1 px-3 py-2.5 rounded-xl" style={{ background: TOKENS.accentSoft, border: `1px solid ${TOKENS.accent}` }}>
+                  <Tag size={14} color={TOKENS.accent} />
+                  <input
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value)}
+                    placeholder="Ex. CAMILLE20"
+                    className="w-full bg-transparent outline-none uppercase"
+                    style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: TOKENS.ink }}
+                  />
+                </div>
+                <div style={{ fontSize: 10, color: TOKENS.muted, marginTop: 4 }}>
+                  Toi et la personne qui t'a parrainé·e recevez chacun 5€ à valoir sur un achat.
+                </div>
+              </div>
+
+              <button onClick={() => setView("profile")} className="w-full mt-5 py-3.5 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 14 }}>
+                Créer mon compte
+              </button>
+
+              <div style={{ fontSize: 12, color: TOKENS.muted, marginTop: 16, textAlign: "center" }}>
+                Déjà un compte ?{" "}
+                <button onClick={() => setView("login")} style={{ color: TOKENS.accent, fontWeight: 700 }}>
+                  Se connecter
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ---------- BROWSE ---------- */}
+          {view === "browse" && (
+            <>
+              <div className="px-5 pt-9 pb-3">
+                <div className="flex items-center justify-between">
+                  <img src={LOGO_URI} alt="TNZ" style={{ height: 34, width: "auto" }} />
+                  <button onClick={() => setView("notifications")} className="w-9 h-9 rounded-full flex items-center justify-center relative" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                    <Bell size={16} color={TOKENS.ink} />
+                    {unreadNotifs > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: TOKENS.accent, fontSize: 9, color: "#fff", fontWeight: 700 }}>
+                        {unreadNotifs}
+                      </span>
+                    )}
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 px-2.5 py-1 rounded-full mt-2" style={{ background: TOKENS.sageSoft, width: "fit-content" }}>
+                  <TrendingUp size={12} color={TOKENS.sage} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: TOKENS.sage }}>4 ventes ce mois</span>
+                </div>
+
+                <div className="flex items-center gap-2 mt-4">
+                  <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                    <Search size={16} color={TOKENS.muted} />
+                    <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher une marque, un article..." className="w-full bg-transparent outline-none" style={{ fontSize: 13, color: TOKENS.ink }} />
+                    <button onClick={() => { setVisualStep("capture"); setView("visualSearch"); }} className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center" style={{ background: TOKENS.accentSoft }} aria-label="Recherche visuelle">
+                      <ScanSearch size={13} color={TOKENS.accent} />
+                    </button>
+                  </div>
+                  <button onClick={() => setShowFilters(true)} className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 relative" style={{ background: TOKENS.ink }}>
+                    <SlidersHorizontal size={16} color={TOKENS.paper} />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: TOKENS.accent, fontSize: 9, color: "#fff", fontWeight: 700 }}>
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex gap-2 mt-4 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+                  {CATEGORIES.map((c) => (
+                    <button key={c} onClick={() => setCategory(c)} className="px-3 py-1.5 rounded-full shrink-0" style={{ background: category === c ? TOKENS.ink : TOKENS.card, color: category === c ? TOKENS.paper : TOKENS.inkSoft, border: `1px solid ${category === c ? TOKENS.ink : TOKENS.border}`, fontSize: 12, fontWeight: 600 }}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="px-5 grid grid-cols-2 gap-3 mt-1">
+                {filtered.map((p) => (
+                  <ProductCard key={p.id} p={p} isFav={favs.has(p.id)} onToggleFav={toggleFav} onOpen={openProduct} />
+                ))}
+                {filtered.length === 0 && (
+                  <div className="col-span-2 text-center py-10" style={{ color: TOKENS.muted, fontSize: 13 }}>
+                    Aucun article ne correspond. Essaie d'élargir tes filtres.
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ---------- FILTRES (panneau) ---------- */}
+          {showFilters && (
+            <div className="absolute inset-0 z-40 flex flex-col justify-end" style={{ background: "rgba(28,27,41,0.4)" }} onClick={() => setShowFilters(false)}>
+              <div className="rounded-t-3xl p-5" style={{ background: TOKENS.paper }} onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between">
+                  <div style={{ fontWeight: 800, fontSize: 16, color: TOKENS.ink }}>Filtres</div>
+                  <button onClick={() => setShowFilters(false)}><X size={18} color={TOKENS.inkSoft} /></button>
+                </div>
+
+                <div className="mt-4">
+                  <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>PRIX MAX — {maxPrice}€</div>
+                  <input type="range" min="10" max="60" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} className="w-full mt-2" />
+                </div>
+
+                <div className="mt-4">
+                  <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>TAILLE</div>
+                  <div className="flex gap-2 mt-1.5 flex-wrap">
+                    {SIZES.map((s) => (
+                      <button key={s} onClick={() => toggleSetVal(setSizeFilters, sizeFilters, s)} className="px-3 py-1.5 rounded-full" style={{ background: sizeFilters.has(s) ? TOKENS.ink : TOKENS.card, color: sizeFilters.has(s) ? TOKENS.paper : TOKENS.inkSoft, border: `1px solid ${sizeFilters.has(s) ? TOKENS.ink : TOKENS.border}`, fontSize: 12, fontWeight: 600 }}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>ÉTAT</div>
+                  <div className="flex gap-2 mt-1.5 flex-wrap">
+                    {STATES.map((s) => (
+                      <button key={s} onClick={() => toggleSetVal(setStateFilters, stateFilters, s)} className="px-3 py-1.5 rounded-full" style={{ background: stateFilters.has(s) ? TOKENS.sageSoft : TOKENS.card, color: stateFilters.has(s) ? TOKENS.sage : TOKENS.inkSoft, border: `1px solid ${stateFilters.has(s) ? TOKENS.sage : TOKENS.border}`, fontSize: 11, fontWeight: 600 }}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-5">
+                  <button onClick={() => { setMaxPrice(60); setSizeFilters(new Set()); setStateFilters(new Set()); }} className="flex-1 py-3 rounded-xl" style={{ border: `1px solid ${TOKENS.border}`, color: TOKENS.inkSoft, fontWeight: 700, fontSize: 13 }}>
+                    Réinitialiser
+                  </button>
+                  <button onClick={() => setShowFilters(false)} className="flex-1 py-3 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 13 }}>
+                    Voir {filtered.length} résultats
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ---------- DÉTAIL PRODUIT ---------- */}
+          {view === "detail" && selected && (
+            <div>
+              <div className="relative">
+                <div style={{ background: selected.color, height: 260 }} />
+                <button onClick={() => setView("browse")} className="absolute top-9 left-5 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.9)" }}>
+                  <ChevronLeft size={18} color={TOKENS.ink} />
+                </button>
+                <button onClick={() => toggleFav(selected.id)} className="absolute top-9 right-5 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.9)" }}>
+                  <Heart size={16} color={favs.has(selected.id) ? TOKENS.accent : TOKENS.inkSoft} fill={favs.has(selected.id) ? TOKENS.accent : "none"} />
+                </button>
+              </div>
+
+              <div className="px-5 py-4">
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: TOKENS.muted, letterSpacing: 1 }}>
+                  {selected.brand.toUpperCase()} · T.{selected.size}
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>{selected.title}</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 20, color: TOKENS.accent }}>{selected.price}€</div>
+                </div>
+                <div className="inline-block mt-2 px-2 py-0.5 rounded-full" style={{ background: TOKENS.sageSoft, color: TOKENS.sage, fontSize: 10, fontWeight: 700 }}>
+                  {selected.state}
+                </div>
+
+                <p style={{ fontSize: 13, color: TOKENS.inkSoft, lineHeight: 1.6, marginTop: 14 }}>
+                  {selected.desc}
+                </p>
+
+                <div className="flex items-center gap-3 mt-4 p-3 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                  <div className="w-10 h-10 rounded-full" style={{ background: selected.sellerColor }} />
+                  <div className="flex-1">
+                    <div style={{ fontSize: 13, fontWeight: 700, color: TOKENS.ink }}>{selected.seller}</div>
+                    <div className="flex items-center gap-1" style={{ fontSize: 11, color: TOKENS.muted }}>
+                      <Star size={11} color={TOKENS.accent} fill={TOKENS.accent} /> {selected.rating} · {selected.sales} ventes
+                    </div>
+                  </div>
+                  <button onClick={() => { setThreadId(CONVERSATIONS.find((c) => c.productId === selected.id)?.id ?? CONVERSATIONS[0].id); setView("thread"); }} className="px-3 py-2 rounded-lg" style={{ border: `1px solid ${TOKENS.border}`, fontSize: 11, fontWeight: 700, color: TOKENS.ink }}>
+                    Message
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 mt-4" style={{ fontSize: 11, color: TOKENS.muted }}>
+                  <ShieldCheck size={14} color={TOKENS.sage} /> Paiement protégé — remboursé si l'article ne correspond pas.
+                </div>
+
+                <div className="mt-4">
+                  <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>CODE PROMO</div>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${promoStatus === "invalid" ? TOKENS.accent : TOKENS.border}` }}>
+                      <Tag size={14} color={TOKENS.inkSoft} />
+                      <input
+                        value={promoCode}
+                        onChange={(e) => { setPromoCode(e.target.value); setPromoStatus("idle"); }}
+                        placeholder="Ex. FRIP10"
+                        className="w-full bg-transparent outline-none uppercase"
+                        style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: TOKENS.ink }}
+                      />
+                    </div>
+                    <button onClick={applyPromo} className="px-4 py-2.5 rounded-xl shrink-0" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 12 }}>
+                      Appliquer
+                    </button>
+                  </div>
+                  {promoStatus === "valid" && (
+                    <div className="flex items-center gap-1.5 mt-1.5" style={{ color: TOKENS.sage, fontSize: 11, fontWeight: 600 }}>
+                      <Check size={12} /> Code appliqué — 10% de réduction au paiement
+                    </div>
+                  )}
+                  {promoStatus === "invalid" && (
+                    <div style={{ color: TOKENS.accent, fontSize: 11, fontWeight: 600, marginTop: 6 }}>
+                      Ce code n'est pas valide ou a expiré.
+                    </div>
+                  )}
+                </div>
+
+                <button onClick={() => setView("checkout")} className="w-full mt-5 py-3.5 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 14 }}>
+                  Acheter · {(promoStatus === "valid" ? selected.price * 0.9 : selected.price).toFixed(2)}€
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ---------- PAIEMENT ---------- */}
+          {view === "checkout" && selected && !paid && (
+            <div className="px-5">
+              <ScreenHeader title="Paiement" onBack={() => setView("detail")} />
+
+              <div className="flex items-center gap-3 mt-3 p-3 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                <div style={{ background: selected.color, width: 44, height: 44, borderRadius: 10 }} />
+                <div className="flex-1">
+                  <div style={{ fontSize: 12, fontWeight: 700, color: TOKENS.ink }}>{selected.title}</div>
+                  <div style={{ fontSize: 10, color: TOKENS.muted }}>{selected.brand} · T.{selected.size}</div>
+                </div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 13, color: TOKENS.ink }}>{selected.price}€</div>
+              </div>
+
+              <div className="mt-4">
+                <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>LIVRAISON</div>
+                <div className="flex items-center gap-2 mt-1.5 p-3 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                  <Truck size={16} color={TOKENS.inkSoft} />
+                  <div style={{ fontSize: 12, color: TOKENS.ink }}>Point relais — 3,50€</div>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>CARTE</div>
+                <div className="flex items-center gap-2 mt-1.5 p-3 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                  <CreditCard size={16} color={TOKENS.inkSoft} />
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, color: TOKENS.ink }}>•••• •••• •••• 4412</span>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>CODE PROMO</div>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${promoStatus === "invalid" ? TOKENS.accent : TOKENS.border}` }}>
+                    <Tag size={14} color={TOKENS.inkSoft} />
+                    <input
+                      value={promoCode}
+                      onChange={(e) => { setPromoCode(e.target.value); setPromoStatus("idle"); }}
+                      placeholder="Ex. FRIP10"
+                      className="w-full bg-transparent outline-none uppercase"
+                      style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: TOKENS.ink }}
+                    />
+                  </div>
+                  <button onClick={applyPromo} className="px-4 py-2.5 rounded-xl shrink-0" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 12 }}>
+                    Appliquer
+                  </button>
+                </div>
+                {promoStatus === "valid" && (
+                  <div className="flex items-center gap-1.5 mt-1.5" style={{ color: TOKENS.sage, fontSize: 11, fontWeight: 600 }}>
+                    <Check size={12} /> Code appliqué — 10% de réduction
+                  </div>
+                )}
+                {promoStatus === "invalid" && (
+                  <div style={{ color: TOKENS.accent, fontSize: 11, fontWeight: 600, marginTop: 6 }}>
+                    Ce code n'est pas valide ou a expiré.
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between mt-5 pt-4" style={{ borderTop: `1px dashed ${TOKENS.border}` }}>
+                <span style={{ fontSize: 12, color: TOKENS.muted }}>Total</span>
+                <div className="text-right">
+                  {promoStatus === "valid" && (
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: TOKENS.muted, textDecoration: "line-through" }}>
+                      {(selected.price + 3.5).toFixed(2)}€
+                    </div>
+                  )}
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 16, color: TOKENS.ink }}>
+                    {(promoStatus === "valid" ? (selected.price + 3.5) * 0.9 : selected.price + 3.5).toFixed(2)}€
+                  </span>
+                </div>
+              </div>
+
+              <button onClick={() => setPaid(true)} className="w-full mt-5 py-3.5 rounded-xl" style={{ background: TOKENS.accent, color: "#fff", fontWeight: 700, fontSize: 14 }}>
+                Confirmer et payer
+              </button>
+            </div>
+          )}
+
+          {view === "checkout" && selected && paid && (
+            <div className="px-5 pt-9 flex flex-col items-center text-center">
+              <div className="w-full flex justify-start">
+                <button onClick={() => setView("browse")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+              </div>
+              <div className="mt-10 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: TOKENS.sageSoft }}>
+                <Check size={26} color={TOKENS.sage} />
+              </div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink, marginTop: 16 }}>Paiement confirmé</div>
+              <p style={{ fontSize: 12, color: TOKENS.muted, marginTop: 8, maxWidth: 260, lineHeight: 1.6 }}>
+                {selected.seller} a été prévenu·e et prépare ton colis. Le paiement reste bloqué jusqu'à la réception, tu ne prends aucun risque.
+              </p>
+              <button onClick={() => setView("browse")} className="mt-6 px-5 py-2.5 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 13 }}>
+                Retour aux annonces
+              </button>
+            </div>
+          )}
+
+          {/* ---------- RECHERCHE VISUELLE ---------- */}
+          {view === "visualSearch" && (
+            <div>
+              <div className="flex items-center gap-3 px-5 pt-9 pb-2">
+                <button onClick={() => setView("browse")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+                <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>Recherche visuelle</div>
+              </div>
+
+              {visualStep === "capture" && (
+                <div className="px-5 mt-3">
+                  <div
+                    className="w-full rounded-2xl flex flex-col items-center justify-center gap-2 py-14"
+                    style={{ background: TOKENS.card, border: `2px dashed ${TOKENS.accent}` }}
+                  >
+                    <ScanSearch size={28} color={TOKENS.accent} />
+                    <span style={{ fontSize: 12, color: TOKENS.inkSoft, fontWeight: 600 }}>
+                      Prends en photo un vêtement
+                    </span>
+                    <span style={{ fontSize: 11, color: TOKENS.muted, textAlign: "center", maxWidth: 220 }}>
+                      On te montrera les articles les plus ressemblants dans la friperie
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={() => setVisualStep("loading")} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 13 }}>
+                      <Camera size={15} /> Prendre une photo
+                    </button>
+                    <button onClick={() => setVisualStep("loading")} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl" style={{ border: `1px solid ${TOKENS.border}`, color: TOKENS.inkSoft, fontWeight: 700, fontSize: 13 }}>
+                      <ImageIcon size={15} /> Galerie
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {visualStep === "loading" && (
+                <div className="px-5 mt-16 flex flex-col items-center text-center">
+                  <Loader2 size={28} color={TOKENS.accent} className="animate-spin" />
+                  <div style={{ fontSize: 13, fontWeight: 700, color: TOKENS.ink, marginTop: 14 }}>
+                    Analyse de la photo...
+                  </div>
+                  <p style={{ fontSize: 11, color: TOKENS.muted, marginTop: 6, maxWidth: 220, lineHeight: 1.6 }}>
+                    On compare la forme, la couleur et la matière avec les annonces en ligne.
+                  </p>
+                </div>
+              )}
+
+              {visualStep === "results" && (
+                <div className="px-5 mt-3">
+                  <div style={{ fontSize: 12, color: TOKENS.muted }}>
+                    {VISUAL_MATCHES.length} articles ressemblants trouvés
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mt-3">
+                    {PRODUCTS.filter((p) => VISUAL_MATCHES.includes(p.id)).map((p) => (
+                      <ProductCard key={p.id} p={p} isFav={favs.has(p.id)} onToggleFav={toggleFav} onOpen={openProduct} />
+                    ))}
+                  </div>
+                  <button onClick={() => setVisualStep("capture")} className="w-full mt-4 py-3 rounded-xl" style={{ border: `1px solid ${TOKENS.border}`, color: TOKENS.inkSoft, fontWeight: 700, fontSize: 13 }}>
+                    Essayer une autre photo
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ---------- NOTIFICATIONS ---------- */}
+          {view === "notifications" && (
+            <div>
+              <div className="flex items-center justify-between px-5 pt-9 pb-2">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setView("browse")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+                  <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>Notifications</div>
+                </div>
+                {unreadNotifs > 0 && (
+                  <button onClick={markAllRead} style={{ fontSize: 11, color: TOKENS.accent, fontWeight: 700 }}>
+                    Tout marquer lu
+                  </button>
+                )}
+              </div>
+
+              <div className="px-5 flex flex-col gap-1 mt-2">
+                {notifications.map((n) => {
+                  const Icon = NOTIF_ICONS[n.type] || Bell;
+                  return (
+                    <button
+                      key={n.id}
+                      onClick={() => {
+                        markNotifRead(n.id);
+                        if (n.type === "review") {
+                          setProfileTab("avis");
+                          setView("profile");
+                        }
+                      }}
+                      className="flex items-start gap-3 p-2.5 rounded-xl text-left"
+                      style={{ background: n.read ? "transparent" : TOKENS.accentSoft }}
+                    >
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: n.read ? TOKENS.sageSoft : TOKENS.ink }}>
+                        <Icon size={14} color={n.read ? TOKENS.sage : TOKENS.paper} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div style={{ fontSize: 12, fontWeight: n.read ? 500 : 700, color: TOKENS.ink }}>{n.text}</div>
+                        <div style={{ fontSize: 11, color: TOKENS.muted, marginTop: 1 }} className="truncate">{n.detail}</div>
+                        <div style={{ fontSize: 10, color: TOKENS.muted, marginTop: 2 }}>{n.time}</div>
+                      </div>
+                      {!n.read && <div className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ background: TOKENS.accent }} />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ---------- MESSAGERIE : LISTE ---------- */}
+          {view === "messages" && (
+            <div>
+              <div className="px-5 pt-9 pb-2">
+                <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>Messages</div>
+              </div>
+              <div className="px-5 flex flex-col gap-1 mt-2">
+                {CONVERSATIONS.map((c) => (
+                  <button key={c.id} onClick={() => { setThreadId(c.id); setView("thread"); }} className="flex items-center gap-3 p-2.5 rounded-xl text-left" style={{ background: c.unread ? TOKENS.accentSoft : "transparent" }}>
+                    <div className="w-11 h-11 rounded-full shrink-0" style={{ background: c.color }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span style={{ fontSize: 13, fontWeight: 700, color: TOKENS.ink }}>{c.name}</span>
+                        <span style={{ fontSize: 10, color: TOKENS.muted }}>{c.time}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: c.unread ? TOKENS.ink : TOKENS.muted, fontWeight: c.unread ? 600 : 400 }} className="truncate">
+                        {c.last}
+                      </div>
+                    </div>
+                    {c.unread && <div className="w-2 h-2 rounded-full shrink-0" style={{ background: TOKENS.accent }} />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ---------- MESSAGERIE : FIL ---------- */}
+          {view === "thread" && thread && (
+            <div className="flex flex-col h-full">
+              <div className="flex items-center gap-3 px-5 pt-9 pb-2">
+                <button onClick={() => setView("messages")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+                <div className="w-8 h-8 rounded-full" style={{ background: thread.color }} />
+                <div style={{ fontWeight: 700, fontSize: 14, color: TOKENS.ink }}>{thread.name}</div>
+              </div>
+              <div className="px-5 flex flex-col gap-2 mt-2">
+                {thread.messages.map((m, i) => (
+                  <div key={i} className="flex" style={{ justifyContent: m.from === "me" ? "flex-end" : "flex-start" }}>
+                    <div className="px-3 py-2 rounded-2xl max-w-[75%]" style={{ background: m.from === "me" ? TOKENS.ink : TOKENS.card, color: m.from === "me" ? TOKENS.paper : TOKENS.ink, border: m.from === "me" ? "none" : `1px solid ${TOKENS.border}`, fontSize: 12 }}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+                {draft && (
+                  <div className="flex justify-end">
+                    <div className="px-3 py-2 rounded-2xl max-w-[75%]" style={{ background: TOKENS.ink, color: TOKENS.paper, fontSize: 12 }}>{draft}</div>
+                  </div>
+                )}
+              </div>
+              <div className="mt-auto px-5 pb-3 pt-3 flex items-center gap-2">
+                <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Écrire un message..." className="flex-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 12 }} />
+                <button onClick={() => setDraft("")} className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: TOKENS.accent }}>
+                  <Send size={15} color="#fff" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ---------- PROFIL ---------- */}
+          {view === "profile" && (
+            <div className="px-5 pt-9">
+              <div className="flex items-center justify-between">
+                <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>Profil</div>
+                <button onClick={() => setView("login")} style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>
+                  Se déconnecter
+                </button>
+              </div>
+              <div className="flex items-center gap-3 mt-4">
+                <div className="w-16 h-16 rounded-full" style={{ background: PROFILE.color }} />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: TOKENS.ink }}>{PROFILE.name}</div>
+                  <div className="flex items-center gap-1" style={{ fontSize: 12, color: TOKENS.muted }}>
+                    <Star size={12} color={TOKENS.accent} fill={TOKENS.accent} /> {PROFILE.rating} · {PROFILE.sales} ventes
+                  </div>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 12, color: TOKENS.inkSoft, lineHeight: 1.6, marginTop: 14 }}>
+                {PROFILE.bio}
+              </p>
+
+              <div className="flex gap-2 mt-5">
+                <button onClick={() => setProfileTab("annonces")} className="px-3 py-1.5 rounded-full" style={{ background: profileTab === "annonces" ? TOKENS.ink : TOKENS.card, color: profileTab === "annonces" ? TOKENS.paper : TOKENS.inkSoft, border: `1px solid ${profileTab === "annonces" ? TOKENS.ink : TOKENS.border}`, fontSize: 12, fontWeight: 600 }}>
+                  Mes annonces
+                </button>
+                <button onClick={() => setProfileTab("favoris")} className="px-3 py-1.5 rounded-full" style={{ background: profileTab === "favoris" ? TOKENS.ink : TOKENS.card, color: profileTab === "favoris" ? TOKENS.paper : TOKENS.inkSoft, border: `1px solid ${profileTab === "favoris" ? TOKENS.ink : TOKENS.border}`, fontSize: 12, fontWeight: 600 }}>
+                  Favoris ({favs.size})
+                </button>
+                <button onClick={() => setProfileTab("avis")} className="px-3 py-1.5 rounded-full" style={{ background: profileTab === "avis" ? TOKENS.ink : TOKENS.card, color: profileTab === "avis" ? TOKENS.paper : TOKENS.inkSoft, border: `1px solid ${profileTab === "avis" ? TOKENS.ink : TOKENS.border}`, fontSize: 12, fontWeight: 600 }}>
+                  Avis ({REVIEWS.length})
+                </button>
+              </div>
+
+              {profileTab !== "avis" && (
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  {(profileTab === "annonces" ? PRODUCTS.filter((p) => p.seller === "Camille") : PRODUCTS.filter((p) => favs.has(p.id))).map((p) => (
+                    <ProductCard key={p.id} p={p} isFav={favs.has(p.id)} onToggleFav={toggleFav} onOpen={openProduct} />
+                  ))}
+                  {profileTab === "favoris" && favs.size === 0 && (
+                    <div className="col-span-2 text-center py-8" style={{ color: TOKENS.muted, fontSize: 12 }}>
+                      Touche le cœur d'une annonce pour la retrouver ici.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {profileTab === "avis" && (
+                <div className="mt-4">
+                  <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: TOKENS.sageSoft }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 26, color: TOKENS.sage }}>{PROFILE.rating}</div>
+                    <div>
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star key={i} size={12} color={TOKENS.sage} fill={i <= Math.round(PROFILE.rating) ? TOKENS.sage : "none"} />
+                        ))}
+                      </div>
+                      <div style={{ fontSize: 11, color: TOKENS.inkSoft, marginTop: 2 }}>{REVIEWS.length} avis vérifiés · {PROFILE.sales} ventes</div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 mt-4">
+                    {REVIEWS.map((r) => (
+                      <div key={r.id} className="p-3 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full shrink-0" style={{ background: r.color }} />
+                          <div className="flex-1">
+                            <div style={{ fontSize: 12, fontWeight: 700, color: TOKENS.ink }}>{r.name}</div>
+                            <div style={{ fontSize: 10, color: TOKENS.muted }}>{r.product} · {r.date}</div>
+                          </div>
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <Star key={i} size={10} color={TOKENS.accent} fill={i <= r.rating ? TOKENS.accent : "none"} />
+                            ))}
+                          </div>
+                        </div>
+                        <p style={{ fontSize: 12, color: TOKENS.inkSoft, lineHeight: 1.5, marginTop: 8 }}>{r.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ---------- VENDRE ---------- */}
+          {view === "sell" && !published && (
+            <div className="px-5 pt-9">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setView("browse")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+                <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink }}>Déposer une annonce</div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 mt-5">
+                <div className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1" style={{ background: TOKENS.card, border: `2px dashed ${TOKENS.accent}` }}>
+                  <Camera size={16} color={TOKENS.accent} />
+                  <span style={{ fontSize: 9, color: TOKENS.accent, fontWeight: 700 }}>Ajouter</span>
+                </div>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="aspect-square rounded-xl" style={{ background: TOKENS.card, border: `1px dashed ${TOKENS.border}` }} />
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: TOKENS.muted, marginTop: 6 }}>
+                4 photos min. recommandées — les annonces bien illustrées se vendent plus vite.
+              </div>
+
+              <div className="mt-5">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>TITRE</label>
+                <input value={sellTitle} onChange={(e) => setSellTitle(e.target.value)} placeholder="Ex. Pull en laine col rond" className="w-full mt-1 px-3 py-2.5 rounded-xl outline-none" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}`, fontSize: 13 }} />
+              </div>
+
+              <div className="mt-4">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>CATÉGORIE</label>
+                <div className="flex gap-2 mt-1.5 flex-wrap">
+                  {CATEGORIES.filter((c) => c !== "Tout").map((c) => (
+                    <button key={c} onClick={() => setSellCat(c)} className="px-3 py-1.5 rounded-full" style={{ background: sellCat === c ? TOKENS.ink : TOKENS.card, color: sellCat === c ? TOKENS.paper : TOKENS.inkSoft, border: `1px solid ${sellCat === c ? TOKENS.ink : TOKENS.border}`, fontSize: 12, fontWeight: 600 }}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>ÉTAT</label>
+                <div className="flex gap-2 mt-1.5 flex-wrap">
+                  {STATES.map((s) => (
+                    <button key={s} onClick={() => setSellState(s)} className="px-3 py-1.5 rounded-full" style={{ background: sellState === s ? TOKENS.sageSoft : TOKENS.card, color: sellState === s ? TOKENS.sage : TOKENS.inkSoft, border: `1px solid ${sellState === s ? TOKENS.sage : TOKENS.border}`, fontSize: 11, fontWeight: 600 }}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label style={{ fontSize: 11, fontWeight: 700, color: TOKENS.inkSoft }}>PRIX</label>
+                <div className="flex items-center mt-1 px-3 py-2.5 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                  <input value={sellPrice} onChange={(e) => setSellPrice(e.target.value.replace(/[^0-9]/g, ""))} placeholder="0" className="w-full bg-transparent outline-none" style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, fontWeight: 700, color: TOKENS.ink }} />
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 16, color: TOKENS.muted }}>€</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 mt-4 p-3 rounded-xl" style={{ background: TOKENS.accentSoft }}>
+                <Sparkles size={14} color={TOKENS.accent} className="mt-0.5 shrink-0" />
+                <span style={{ fontSize: 11, color: TOKENS.ink }}>{TIPS[sellCat]}</span>
+              </div>
+
+              <div className="flex items-center justify-between mt-4 p-3 rounded-xl" style={{ background: TOKENS.card, border: `1px solid ${TOKENS.border}` }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: TOKENS.ink }}>Mettre en avant</div>
+                  <div style={{ fontSize: 10, color: TOKENS.muted }}>+3x de visibilité, gratuit 48h</div>
+                </div>
+                <button onClick={() => setBoost((b) => !b)} className="w-10 h-6 rounded-full relative shrink-0" style={{ background: boost ? TOKENS.accent : TOKENS.border }}>
+                  <div className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all" style={{ left: boost ? 18 : 2 }} />
+                </button>
+              </div>
+
+              <button onClick={() => setPublished(true)} disabled={!sellTitle || !sellPrice} className="w-full mt-5 py-3.5 rounded-xl" style={{ background: !sellTitle || !sellPrice ? TOKENS.border : TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 14 }}>
+                Publier l'annonce
+              </button>
+            </div>
+          )}
+
+          {view === "sell" && published && (
+            <div className="px-5 pt-9 flex flex-col items-center text-center">
+              <div className="w-full flex justify-start">
+                <button onClick={() => setView("browse")}><ChevronLeft size={20} color={TOKENS.ink} /></button>
+              </div>
+              <div className="mt-10 w-16 h-16 rounded-full flex items-center justify-center" style={{ background: TOKENS.sageSoft }}>
+                <Sparkles size={26} color={TOKENS.sage} />
+              </div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: TOKENS.ink, marginTop: 16 }}>Annonce publiée !</div>
+              <p style={{ fontSize: 12, color: TOKENS.muted, marginTop: 6, maxWidth: 250, lineHeight: 1.6 }}>
+                "{sellTitle}" est en ligne{boost ? " et mise en avant pour 48h" : ""}. Tu recevras une notification à chaque message.
+              </p>
+              <button onClick={() => { setPublished(false); setSellTitle(""); setSellPrice(""); setView("browse"); }} className="mt-6 px-5 py-2.5 rounded-xl" style={{ background: TOKENS.ink, color: TOKENS.paper, fontWeight: 700, fontSize: 13 }}>
+                Retour aux annonces
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ---------- NAV BAS ---------- */}
+        {!["login", "signup"].includes(view) && (
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-around py-3 px-2" style={{ background: TOKENS.card, borderTop: `1px solid ${TOKENS.border}` }}>
+          <button onClick={() => setView("browse")} className="flex flex-col items-center gap-0.5">
+            <Home size={18} color={["browse", "detail", "checkout", "visualSearch", "notifications"].includes(view) ? TOKENS.ink : TOKENS.muted} />
+            <span style={{ fontSize: 9, color: ["browse", "detail", "checkout", "visualSearch", "notifications"].includes(view) ? TOKENS.ink : TOKENS.muted, fontWeight: 600 }}>Accueil</span>
+          </button>
+          <button onClick={() => setView("profile")} className="flex flex-col items-center gap-0.5">
+            <Heart size={18} color={TOKENS.muted} fill={favs.size ? TOKENS.accent : "none"} stroke={favs.size ? TOKENS.accent : TOKENS.muted} />
+            <span style={{ fontSize: 9, color: TOKENS.muted, fontWeight: 600 }}>Favoris ({favs.size})</span>
+          </button>
+          <button onClick={() => { setView("sell"); setPublished(false); }} className="w-11 h-11 rounded-full flex items-center justify-center -mt-6" style={{ background: TOKENS.accent, boxShadow: `0 6px 16px ${TOKENS.accentSoft}` }}>
+            <Plus size={22} color="#fff" />
+          </button>
+          <button onClick={() => setView("messages")} className="flex flex-col items-center gap-0.5 relative">
+            <MessageCircle size={18} color={["messages", "thread"].includes(view) ? TOKENS.ink : TOKENS.muted} />
+            {CONVERSATIONS.some((c) => c.unread) && <span className="absolute top-0 right-1 w-2 h-2 rounded-full" style={{ background: TOKENS.accent }} />}
+            <span style={{ fontSize: 9, color: ["messages", "thread"].includes(view) ? TOKENS.ink : TOKENS.muted, fontWeight: 600 }}>Messages</span>
+          </button>
+          <button onClick={() => setView("profile")} className="flex flex-col items-center gap-0.5">
+            <User size={18} color={view === "profile" ? TOKENS.ink : TOKENS.muted} />
+            <span style={{ fontSize: 9, color: view === "profile" ? TOKENS.ink : TOKENS.muted, fontWeight: 600 }}>Profil</span>
+          </button>
+        </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<FriperieApp />);
+</script>
+</body>
+</html>
